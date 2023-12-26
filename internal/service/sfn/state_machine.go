@@ -169,8 +169,19 @@ func resourceStateMachineCreate(ctx context.Context, d *schema.ResourceData, met
 	conn := meta.(*conns.AWSClient).SFNConn(ctx)
 
 	name := create.Name(d.Get("name").(string), d.Get("name_prefix").(string))
+	var definition string
+	// TODO: Add validation to only accept definition or S3
+
+	if d.Get("definition").(string) != "" {
+		definition = d.Get("definition").(string)
+	}
+
+	if d.Get("definition_s3_location").(string) != "" {
+		// TODO: read from S3
+		definition = d.Get("definition").(string)
+	}
 	input := &sfn.CreateStateMachineInput{
-		Definition: aws.String(d.Get("definition").(string)),
+		Definition: aws.String(definition),
 		Name:       aws.String(name),
 		Publish:    aws.Bool(d.Get("publish").(bool)),
 		RoleArn:    aws.String(d.Get("role_arn").(string)),
